@@ -1,7 +1,6 @@
 import { action, computed, IObservableArray, observable, runInAction, makeObservable } from 'mobx';
 import Router from 'next/router';
 import {
-  cancelSubscriptionApiMethod,
   inviteMemberApiMethod,
   removeMemberApiMethod,
   updateTeamApiMethod,
@@ -33,19 +32,6 @@ class Team {
   public currentDiscussionSlug?: string;
   public discussions: IObservableArray<Discussion> = observable([]);
   public isLoadingDiscussions = false;
-
-  public stripeSubscription: {
-    id: string;
-    object: string;
-    application_fee_percent: number;
-    billing: string;
-    cancel_at_period_end: boolean;
-    billing_cycle_anchor: number;
-    canceled_at: number;
-    created: number;
-  };
-  public isSubscriptionActive: boolean;
-  public isPaymentFailed: boolean;
 
   constructor(params) {
     makeObservable(this, {
@@ -82,10 +68,6 @@ class Team {
     this.avatarUrl = params.avatarUrl;
     this.memberIds.replace(params.memberIds || []);
     this.currentDiscussionSlug = params.currentDiscussionSlug || null;
-
-    this.stripeSubscription = params.stripeSubscription;
-    this.isSubscriptionActive = params.isSubscriptionActive;
-    this.isPaymentFailed = params.isPaymentFailed;
 
     this.store = params.store;
 
@@ -136,10 +118,18 @@ class Team {
 
   public async inviteMember(email: string) {
     try {
-      const { newInvitation } = await inviteMemberApiMethod({ teamId: this._id, email });
+      const { user, team } = await inviteMemberApiMethod({ teamId: this._id, email });
 
       runInAction(() => {
-        this.invitations.set(newInvitation._id, new Invitation(newInvitation));
+        // Update memberIds from the team response
+        if (team && team.memberIds) {
+          this.memberIds.replace(team.memberIds);
+        }
+
+        // Add the new user to members map
+        if (user) {
+          this.members.set(user._id, new User(user));
+        }
       });
     } catch (error) {
       console.error(error);
@@ -288,31 +278,9 @@ class Team {
     return this.discussions.find((d) => d.slug === slug);
   }
 
-  public async cancelSubscription({ teamId }: { teamId: string }) {
-    try {
-      const { isSubscriptionActive } = await cancelSubscriptionApiMethod({ teamId });
-
-      runInAction(() => {
-        this.isSubscriptionActive = isSubscriptionActive;
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
   public async checkIfTeamLeaderMustBeCustomer() {
-    let ifTeamLeaderMustBeCustomerOnClient: boolean;
-
-    if (this && this.memberIds.length < 2) {
-      ifTeamLeaderMustBeCustomerOnClient = false;
-    } else if (this && this.memberIds.length >= 2 && this.isSubscriptionActive) {
-      ifTeamLeaderMustBeCustomerOnClient = false;
-    } else if (this && this.memberIds.length >= 2 && !this.isSubscriptionActive) {
-      ifTeamLeaderMustBeCustomerOnClient = true;
-    }
-
-    return ifTeamLeaderMustBeCustomerOnClient;
+    // Subscription required when team has more than 2 members
+    return this && this.memberIds.length >= 2;
   }
 
   get orderedDiscussions() {

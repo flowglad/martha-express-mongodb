@@ -1,8 +1,3 @@
-![image](https://user-images.githubusercontent.com/26158226/155850630-137ae3be-aa29-487b-a422-e8fb4db634dc.png)
-
-Support Ukraine: [link](https://bank.gov.ua/en/news/all/natsionalniy-bank-vidkriv-spetsrahunok-dlya-zboru-koshtiv-na-potrebi-armiyi)
-
-
 ## SaaS Boilerplate
 
 Open source web app that saves you many days of work when building your own SaaS product. The boilerplate comes with many basic SaaS features (see [Features](https://github.com/async-labs/saas#features) below) so that you can focus on features that differentiate your product.
@@ -32,16 +27,6 @@ We've used this `saas` project to build:
 ![aws-open-source (2)](https://github.com/user-attachments/assets/50f5b67a-0c95-4304-817f-1606adb46c81)
 
 [![1password-logo](https://user-images.githubusercontent.com/26158226/138565841-ad435374-7330-477a-b6f3-2542109c3217.png)](https://1password.com/)
-
-## Showcase
-
-Check out projects built with the help of this open source app. Feel free to add your own project by creating a pull request.
-
-- [Async](https://async-await.com/): Open source web app for team communication, separate urgent vs. non-urgent conversations.
-- [workinbiotech.com](https://workinbiotech.com): Work in biotech, job board for small and young biotech companies
-- [Retaino](https://retaino.com) by [Earl Lee](https://github.com/earllee): Save, annotate, review, and share great web content. Receive smart email digests to retain key information.
-- [Builder Book](https://github.com/async-labs/builderbook): Open source web app to publish documentation or books.
-
 
 ## Contents
 

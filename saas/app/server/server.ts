@@ -91,11 +91,11 @@ app.prepare().then(() => {
 
   // listen(handle: any, listeningListener?: () => void): http.Server;
   // "@types/express-serve-static-core", "version": "4.17.1"
+  const url = dev ? process.env.NEXT_PUBLIC_URL_APP : process.env.NEXT_PUBLIC_PRODUCTION_URL_APP;
+
   server.listen(port, () => {
     console.log(
-      `> Ready on ${
-        dev ? process.env.NEXT_PUBLIC_URL_APP : process.env.NEXT_PUBLIC_PRODUCTION_URL_APP
-      }`,
+      `> Ready on ${url || `http://localhost:${port}`}`,
     );
   });
 });

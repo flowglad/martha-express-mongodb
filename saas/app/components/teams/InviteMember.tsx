@@ -40,7 +40,6 @@ class InviteMember extends React.Component<Props, State> {
         <DialogContent>
           <form onSubmit={this.onSubmit} style={{ padding: '20px' }}>
             <TextField
-              disabled
               autoComplete="off"
               value={this.state.email}
               placeholder="Email"
@@ -48,12 +47,11 @@ class InviteMember extends React.Component<Props, State> {
                 this.setState({ email: event.target.value });
               }}
             />
-            <p>Disabled in this demo due to high bounce rate (people submitting fake emails)</p>
             <br />
             <Button variant="outlined" onClick={this.handleClose} disabled={this.state.disabled}>
               Cancel
             </Button>{' '}
-            <Button disabled type="submit" variant="contained" color="primary">
+            <Button type="submit" variant="contained" color="primary" disabled={this.state.disabled}>
               Invite
             </Button>
           </form>
@@ -90,7 +88,7 @@ class InviteMember extends React.Component<Props, State> {
       await store.currentTeam.inviteMember(email);
 
       this.setState({ email: '' });
-      notify('You successfully sent invitation.');
+      notify('User added successfully.');
       NProgress.done();
     } catch (error) {
       console.log(error);

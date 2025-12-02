@@ -1,9 +1,8 @@
 import * as mongoose from 'mongoose';
 
-import sendEmail from '../aws-ses';
-import getEmailTemplate from './EmailTemplate';
 import Team from './Team';
 import User, { UserDocument } from './User';
+import { generateSlug } from '../utils/slugify';
 
 const mongoSchema = new mongoose.Schema({
   teamId: {
@@ -52,13 +51,6 @@ interface InvitationModel extends mongoose.Model<InvitationDocument> {
   addUserToTeam({ token, user }: { token: string; user: UserDocument });
 }
 
-function generateToken() {
-  const gen = () =>
-    Math.random().toString(36).substring(2, 12) + Math.random().toString(36).substring(2, 12);
-
-  return `${gen()}`;
-}
-
 class InvitationClass extends mongoose.Model {
   public static async add({ userId, teamId, email }) {
     if (!teamId || !email) {
@@ -70,57 +62,49 @@ class InvitationClass extends mongoose.Model {
       throw new Error('Team does not exist or you have no permission');
     }
 
-    const registeredUser = await User.findOne({ email }).setOptions({ lean: true });
+    let registeredUser = await User.findOne({ email }).setOptions({ lean: true });
 
-    if (registeredUser && team.memberIds.includes(registeredUser._id.toString())) {
-      throw new Error('This user is already Team Member.');
-    }
+    // If user doesn't exist, create a test user account for them
+    if (!registeredUser) {
+      const slug = await generateSlug(User, email);
+      const userIdForNewUser = new mongoose.Types.ObjectId().toHexString();
 
-    let token;
-    const invitation = await this.findOne({ teamId, email })
-      .select('token')
-      .setOptions({ lean: true });
-
-    if (invitation) {
-      token = invitation.token;
-    } else {
-      token = generateToken();
-      while ((await this.countDocuments({ token })) > 0) {
-        token = generateToken();
-      }
-
-      await this.create({
-        teamId,
+      const newUser = await User.create({
+        _id: userIdForNewUser,
+        createdAt: new Date(),
         email,
-        token,
+        slug,
+        displayName: email.split('@')[0], // Use email prefix as display name
+        defaultTeamSlug: '',
+        isSignedupViaGoogle: false,
+        darkTheme: false,
       });
+
+      registeredUser = await User.findById(newUser._id)
+        .select(User.publicFields().join(' '))
+        .setOptions({ lean: true });
     }
 
-    const dev = process.env.NODE_ENV !== 'production';
-
-    const emailTemplate = await getEmailTemplate('invitation', {
-      teamName: team.name,
-      invitationURL: `${
-        dev ? process.env.URL_APP : process.env.PRODUCTION_URL_APP
-      }/invitation?token=${token}`,
-    });
-
-    if (!emailTemplate) {
-      throw new Error('Invitation email template not found');
+    if (team.memberIds.includes(registeredUser._id.toString())) {
+      throw new Error('This user is already a Team Member.');
     }
 
-    try {
-      await sendEmail({
-        from: `Kelly from saas-app.async-await.com <${process.env.EMAIL_SUPPORT_FROM_ADDRESS}>`,
-        to: [email],
-        subject: emailTemplate.subject,
-        body: emailTemplate.message,
-      });
-    } catch (err) {
-      console.log('Email sending error:', err);
+    // Add user directly to team without sending email
+    await Team.updateOne({ _id: team._id }, { $addToSet: { memberIds: registeredUser._id.toString() } });
+
+    // Set default team slug if user doesn't have one
+    if (registeredUser._id.toString() !== team.teamLeaderId) {
+      await User.findByIdAndUpdate(registeredUser._id, { $set: { defaultTeamSlug: team.slug } });
     }
 
-    return await this.findOne({ teamId, email }).setOptions({ lean: true });
+    // Return a mock invitation object for compatibility with frontend
+    return {
+      _id: 'direct-add',
+      teamId,
+      email,
+      token: 'direct-add',
+      createdAt: new Date(),
+    };
   }
 
   public static async getTeamInvitations({ userId, teamId }) {

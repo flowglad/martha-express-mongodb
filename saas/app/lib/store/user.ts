@@ -2,7 +2,6 @@ import { action, observable, runInAction, makeObservable } from 'mobx';
 
 import * as NProgress from 'nprogress';
 
-import { getListOfInvoicesApiMethod } from '../api/team-leader';
 import { toggleThemeApiMethod, updateProfileApiMethod } from '../api/team-member';
 import { Store } from './index';
 
@@ -19,27 +18,6 @@ class User {
   public darkTheme = false;
   public defaultTeamSlug: string;
 
-  public stripeCard: {
-    brand: string;
-    funding: string;
-    last4: string;
-    exp_month: number;
-    exp_year: number;
-  };
-  public hasCardInformation: boolean;
-  public stripeListOfInvoices: {
-    object: string;
-    data: [
-      {
-        amount_paid: number;
-        teamName: string;
-        created: number;
-        hosted_invoice_url: string;
-      },
-    ];
-    has_more: boolean;
-  };
-
   constructor(params) {
     makeObservable(this, {
       slug: observable,
@@ -48,12 +26,9 @@ class User {
       avatarUrl: observable,
       // darkTheme: observable,
       defaultTeamSlug: observable,
-      stripeCard: observable,
-      stripeListOfInvoices: observable,
 
       updateProfile: action,
       toggleTheme: action,
-      getListOfInvoices: action,
     });
 
     this.store = params.store;
@@ -65,10 +40,6 @@ class User {
     this.isSignedupViaGoogle = !!params.isSignedupViaGoogle;
     this.darkTheme = !!params.darkTheme;
     this.defaultTeamSlug = params.defaultTeamSlug;
-
-    this.stripeCard = params.stripeCard;
-    this.hasCardInformation = params.hasCardInformation;
-    this.stripeListOfInvoices = params.stripeListOfInvoices;
   }
 
   public async updateProfile({ name, avatarUrl }: { name: string; avatarUrl: string }) {
@@ -92,18 +63,6 @@ class User {
     NProgress.start();
     NProgress.set(0.5);
     window.location.reload();
-  }
-
-  public async getListOfInvoices() {
-    try {
-      const { stripeListOfInvoices } = await getListOfInvoicesApiMethod();
-      runInAction(() => {
-        this.stripeListOfInvoices = stripeListOfInvoices;
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
   }
 }
 

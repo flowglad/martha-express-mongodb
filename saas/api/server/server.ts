@@ -10,7 +10,6 @@ import api from './api';
 import { setupGoogle } from './google-auth';
 import { setupPasswordless } from './passwordless-auth';
 import { setupSockets } from './sockets';
-import { stripeWebhookAndCheckoutCallback } from './stripe';
 
 import logger from './logger';
 
@@ -51,7 +50,8 @@ server.use(
 server.use(helmet());
 server.use(compression());
 
-stripeWebhookAndCheckoutCallback({ server });
+// TODO: Integrate with billing provider webhooks
+// stripeWebhookAndCheckoutCallback({ server });
 
 server.use(express.json());
 

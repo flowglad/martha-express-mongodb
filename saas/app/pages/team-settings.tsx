@@ -17,6 +17,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
+import Router from 'next/router';
 import Layout from '../components/layout';
 import InviteMember from '../components/teams/InviteMember';
 import {
@@ -131,12 +132,15 @@ function TeamSettings({ store, isMobile, firstGridItem, teamRequired, teamSlug }
     const ifTeamLeaderMustBeCustomer = await currentTeam.checkIfTeamLeaderMustBeCustomer();
 
     if (ifTeamLeaderMustBeCustomer) {
-      notify(
-        'To add a third team member, you have to become a paid customer.' +
+      notify({
+        message: 'To add a third team member, you have to become a paid customer.' +
           '<p />' +
           ' To become a paid customer,' +
           ' navigate to Billing page.',
+          autoHideDuration: 8000 
+      }
       );
+      Router.push(`/teams/${currentTeam.slug}/billing`);
       return;
     }
 
@@ -343,34 +347,6 @@ function TeamSettings({ store, isMobile, firstGridItem, teamRequired, teamSlug }
           </Table>
         </TableContainer>
 
-        <p />
-        <br />
-
-        {Array.from(currentTeam.invitations.values()).length > 0 ? (
-          <React.Fragment>
-            <h4>Invited users</h4>
-            <p />
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Status</TableCell>
-                  </TableRow>
-                </TableHead>
-
-                <TableBody>
-                  {Array.from(currentTeam.invitations.values()).map((i) => (
-                    <TableRow key={i._id}>
-                      <TableCell style={{ width: '300px' }}>{i.email}</TableCell>
-                      <TableCell>Sent</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </React.Fragment>
-        ) : null}
         <p />
         <br />
         <InviteMember open={inviteMemberOpen} onClose={handleInviteMemberClose} store={store} />
