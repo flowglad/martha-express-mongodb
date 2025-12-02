@@ -45,8 +45,6 @@ We've used this `saas` project to build:
 - Server-side rendering for fast initial load and SEO.
 - User authentication with Google OAuth API and Passwordless, cookie, and session.
 - Production-ready Express server with compression, parser, and helmet.
-- Transactional emails (`AWS SES`): welcome, team invitation, and payment.
-- Adding email addresses to newsletter lists (`Mailchimp`): new users, paying users.
 - File upload, load, and deletion (`AWS S3`) with pre-signed request for: Posts, Team Profile, and User Profile.
 - Websockets with socket.io v3.
 - Team creation, Team Member invitation, and settings for Team and User.
@@ -64,10 +62,6 @@ We've used this `saas` project to build:
 - Production-ready, scalable architecture:
   - `app` - user-facing web app with Next/Express server, responsible for rendering pages (either client-side or server-side rendered). `app` sends requests via API methods to `api` Express server.
   - `api` - server-only code, Express server, responsible for processing requests for internal and external API infrastructures.
-- **Subscriptions with `Stripe`**:
-  - subscribe/unsubscribe Team to plan,
-  - update card information,
-  - verified Stripe webhook for failed payment for subscription.
 
 
 #### Running `api` locally:
@@ -78,7 +72,7 @@ We've used this `saas` project to build:
 
   ```
   # Used in api/server/server.ts
-  MONGO_URL_TEST=
+  MONGO_URL_TEST= 
   MONGO_URL=
   SESSION_NAME=
   SESSION_SECRET=
@@ -92,26 +86,7 @@ We've used this `saas` project to build:
   AWS_REGION=
   AWS_ACCESSKEYID=
   AWS_SECRETACCESSKEY=
-  
-  # Used in api/server/models/Invitation.ts and api/server/models/User.ts
-  EMAIL_SUPPORT_FROM_ADDRESS=
-  
-  # Used in api/server/mailchimp.ts
-  MAILCHIMP_API_KEY=
-  MAILCHIMP_REGION=
-  MAILCHIMP_SAAS_ALL_LIST_ID=
-  
-  ----------
-  # All env variables above this line are needed for successful user signup
-  
-  # Used in api/server/stripe.ts
-  STRIPE_TEST_SECRETKEY=sk_test_xxxxxx
-  STRIPE_LIVE_SECRETKEY=sk_live_xxxxxx
-  
-  STRIPE_TEST_PLANID=plan_xxxxxx
-  STRIPE_LIVE_PLANID=plan_xxxxxx
-  
-  STRIPE_LIVE_ENDPOINTSECRET=whsec_xxxxxx
+
   
   # Optionally determine the URL
   URL_APP="http://localhost:3000"
@@ -121,6 +96,8 @@ We've used this `saas` project to build:
   ```
   
   - Your `.env` file file _must_ have values for the `required` variables. To use all features and third-party integrations, also add the `optional` variables.
+
+  - When testing locally, you must have a `MONGO_URL_TEST`, `GOOGLE_CLIENTID`, `GOOGLE_CLIENTSECRET`, `URL_APP`, `URL_API`, `SESSION_SECRET`.
 
   - IMPORTANT: do not publish your actual values for environmentable variables in `.env.example`; this file is public and only meant to show you how your `.env` should look.<br/>
   
