@@ -1,0 +1,84 @@
+isDefault: false
+name: "express-mongodb"
+features:
+  - type: "usage_credit_grant"
+    slug: "2_team_member"
+    name: "2_team_member"
+    description: "allocate 2 team members"
+    amount: 2
+    renewalFrequency: "every_billing_period"
+    active: true
+    usageMeterSlug: "team_members"
+  - type: "usage_credit_grant"
+    slug: "20_team_member"
+    name: "20_team_member"
+    description: "get 20 team members"
+    amount: 20
+    renewalFrequency: "every_billing_period"
+    active: true
+    usageMeterSlug: "team_members"
+products:
+  - product:
+      name: "Free Plan"
+      description: "Default plan"
+      active: true
+      default: true
+      slug: "free"
+    prices:
+      - intervalUnit: "month"
+        name: "Free Plan"
+        intervalCount: 1
+        type: "subscription"
+        isDefault: true
+        unitPrice: 0
+        usageEventsPerUnit: null
+        active: true
+        slug: "free"
+        usageMeterId: null
+    features:
+      - "2_team_member"
+  - product:
+      name: "subscription"
+      description: "buy subscription for unlimited team members"
+      active: false
+      singularQuantityLabel: "unit"
+      pluralQuantityLabel: "units"
+      default: false
+      slug: "subscription"
+    prices:
+      - intervalUnit: "month"
+        intervalCount: 1
+        type: "usage"
+        trialPeriodDays: null
+        isDefault: true
+        unitPrice: 5000
+        usageEventsPerUnit: 20
+        active: true
+        slug: "team_members"
+        usageMeterSlug: "team_members"
+    features: []
+  - product:
+      name: "subscription"
+      description: ""
+      imageURL: ""
+      active: true
+      default: false
+      slug: "subscription_feature"
+    prices:
+      - intervalUnit: "month"
+        name: "Default Price"
+        intervalCount: 1
+        type: "subscription"
+        trialPeriodDays: 0
+        isDefault: true
+        unitPrice: 5000
+        usageEventsPerUnit: null
+        active: true
+        slug: "subscription_feature"
+        usageMeterId: null
+    features:
+      - "20_team_member"
+usageMeters:
+  - name: "team_members"
+    slug: "team_members"
+    aggregationType: "sum"
